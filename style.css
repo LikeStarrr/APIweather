@@ -107,7 +107,9 @@ h2 {
 }
 
 .tabs__block:target {
+  position:absolute;
   display: block;
+  z-index: 2;
 }
 
 .tabs__item {
@@ -127,6 +129,10 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+#tab-now {
+  position:relative;
 }
 
 .block-1:target ~ .tabs__item .tab-now,
@@ -160,9 +166,8 @@ h2 {
 .now-botton {
   display: flex;
   justify-content: space-between;
-  /*align-items: stretch;
+  align-items: stretch;
   margin-right: 10px;
-  */
 }
 
 .now-location {
@@ -189,13 +194,16 @@ h2 {
   justify-content: flex-start;
 
 }
-.icon-favorite:empty{
-  display: none;
-}
-
-/*.btn-favorite:empty{
+/*.icon-favorite:empty{
   display: none;
 }*/
+
+.btn-favorite{
+  position: relative;
+  display: flex;
+  align-items: center;
+  z-index: 0;
+}
 
 
 
@@ -239,7 +247,7 @@ h2 {
   margin-bottom: 14px;
 }
 
-.favour_elem{
+.favorite_elem{
   display: flex;
   justify-content:space-between;
 }
