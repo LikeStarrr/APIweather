@@ -1,37 +1,35 @@
-const UI = {
-  INPUT_SEARCH: document.querySelector(".input-search"),
-  BTN_SEARCH: document.querySelector(".btn-search"),
-  BTN_FAVORITE: document.querySelector(".btn-favorite"),
-  IMG_FAVORITE: document.querySelector(".btn-favorite"),
-  TAB_NOW: document.querySelector(".tab_now"),
-  TAB_DETAILS: document.querySelector(".tab_details"),
-  TAB_FORECAST: document.querySelector(".tab_forecast"),
-  UL_DETAILS: document.querySelectorAll(".list-elem"),
-  TEMPERATURE_NOW: document.querySelector(".temperature"),
-  IMG_WEATHER_NOW: document.querySelector(".icon-weather"),
-  LOCATION_NOW: document.querySelector(".now-location"),
-  LOCATION_DETAILS: document.querySelector(".details-location"),
-};
+import { UI, NOW, DETAILS, FORECAST } from './view.js';
+import { storage } from  './storage.js'
+
+const URL = {
+  SERVER: 'http://api.openweathermap.org/data/2.5/weather',
+  API_KEY: 'f660a2fb1e4bad108d6160b7f58c555f',
+}
 
 UI.BTN_SEARCH.addEventListener("click", function () {
   getWeather();
 });
 
 function getWeather() {
-  const serverUrl = "http://api.openweathermap.org/data/2.5/weather";
+  const serverUrl = URL.SERVER;
   const cityName = UI.INPUT_SEARCH.value;
-  const apiKey = "f660a2fb1e4bad108d6160b7f58c555f";
+  alert("city=" + UI.INPUT_SEARCH.value);
+  const apiKey = URL.API_KEY;
   const url = `${serverUrl}?q=${cityName}&appid=${apiKey}&units=metric`;
   alert(url);
   fetch(url)
     .then(function (response) {
       if (response.status !== 200) {
-         return Promise.reject(new Error(response.statusText))  
-      } 
-      return Promise.resolve(response)
+        return Promise.reject(
+          `Error ${response.status} - ${response.statusText}\nTry again!`
+        );
+      }
+      return Promise.resolve(response);
     })
+    .catch((err) => alert(err))
     .then((response) => response.json())
     .then((result) => {
+      alert("ready for data");
       let weatherInfo = {
         Temperature: Math.round(result.main.temp) + "\u2103",
         "Feels like": Math.round(result.main.feels_like) + "\u2103",
@@ -39,23 +37,75 @@ function getWeather() {
         Sunrise: getTimeFromUnix(result.sys.sunrise),
         Sunset: getTimeFromUnix(result.sys.sunset),
       };
-
+     
+      let srcWeatherImg = result.weather[0].icon;
+      NOW.IMG_WEATHER.src = `http://openweathermap.org/img/wn/${srcWeatherImg}@2x.png`;
       let i = 0;
       for (let key in weatherInfo) {
-        UI.UL_DETAILS[i].textContent = `${key} : ${weatherInfo[key]} `;
+        DETAILS.UL[i].textContent = `${key} : ${weatherInfo[key]} `;
         i++;
       }
-      UI.TEMPERATURE_NOW.textContent = Math.round(result.main.temp) + "\u2103";
-      UI.LOCATION_NOW.textContent = cityName;
-      UI.LOCATION_DETAILS.textContent = cityName;
-    })
-    .catch(Error => alert('Error ', Error));  
+      NOW.TEMPERATURE.textContent = Math.round(result.main.temp) + "\u2103";
+      NOW.LOCATION.textContent = cityName;
+      DETAILS.LOCATION.textContent = cityName;
+    });
   UI.INPUT_SEARCH.value = "";
+  //document.getElementById("real_tab_now").onclick;
+  //NOW.TAB.style.zIndex = "5";
+ // document.getElementById("real_tab_now").onfocus = "#tab-now";
 }
+
+UI.BTN_FAVORITE.addEventListener('click', addFavour);
+function addFavour () {
+
+  let array = storage.getFavoritesFromStorage()
+  if (array === null) array = [];
+  console.log('array:' + array);
+  const currentCity = NOW.LOCATION.textContent;
+  const check = array.indexOf(currentCity);
+  console.log(check);
+  if (check < 0) array.push(currentCity);
+  console.log(array);
+
+  UI.DIV_LIST.innerHTML = '';
+
+  array.forEach(item => {
+    // console.log(item)
+    const DIV_FAVORITE = document.createElement('div');  
+    DIV_FAVORITE.className = 'favorite_elem';
+    DIV_FAVORITE.innerHTML = `
+    <span class="loc-elem"> ${item} </span> 
+    <button class="btn-delete"> <img src="./img/delete-icon.svg" alt="Delete icon"> </button>
+    `
+    UI.DIV_LIST.append(DIV_FAVORITE);
+
+    DIV_FAVORITE.querySelector('.btn-delete').addEventListener('click', deleteFavour);
+    DIV_FAVORITE.querySelector('.loc-elem').addEventListener('click', function () {
+    UI.INPUT_SEARCH.value = this.textContent;
+    getWeather();
+  }) 
+  })
+
+  storage.setFavoritesToStorage(array); 
+}
+
+function deleteFavour () {
+  localStorage.removeItem(NOW.LOCATION.textContent)
+  this.parentElement.remove();
+}
+
+function getLocationFromFavorites () {
+  UI.INPUT_SEARCH.value = this.textContent;
+  console.log("city=" + this.textContent);
+  console.log("в поиске=" + UI.INPUT_SEARCH.value);
+  getWeather();
+}
+
+Array.from(UI.DIV_LIST_LIVE).find(item=>item.addEventListener('click', getLocationFromFavorites))
 
 function getTimeFromUnix(timestamp) {
   let d = new Date(timestamp * 1000);
-  timeStampCon = addZero(d.getHours()) + ":" + addZero(d.getMinutes());
+  let timeStampCon = addZero(d.getHours()) + ":" + addZero(d.getMinutes());
   return timeStampCon;
 }
 
