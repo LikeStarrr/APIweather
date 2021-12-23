@@ -1,0 +1,13 @@
+﻿{"coord":{"lon":-71.0598,"lat":42.3584},
+"weather":[{"id":804,"main":"Clouds","description":"overcast clouds","icon":"04n"}],
+"base":"stations",
+"main": "temp":285.47,"feels_like":284.61,"temp_min":283.83,"temp_max":287.05,"pressure":1008,"humidity":71},
+"visibility":10000,
+"wind":{"speed":2.68,"deg":295,"gust":5.36},
+"clouds":{"all":97},
+"dt":1639720685,
+"sys":{"type":2,"id":2013408,"country":"US","sunrise":1639742882,"sunset":1639775581},
+"timezone":-18000,
+"id":4930956,
+"name":"Boston",
+"cod":200}
